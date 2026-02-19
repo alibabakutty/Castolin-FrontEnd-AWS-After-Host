@@ -17,7 +17,7 @@ const ViewFetchDistributor = ({ onBack }) => {
   const listContainerRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const currentDistributorUsername = user?.customer_name.toLowerCase() || user?.displayName.toLowerCase() || '';
+  const currentDistributorUsername = String(user?.username || user?.displayName || '').toLowerCase() || '';
 
   // Column configuration matching your existing structure
   const columns = [

@@ -9,7 +9,7 @@ const AdminAuthForm = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { loginAdmin } = useAuth();
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -25,7 +25,7 @@ const AdminAuthForm = () => {
     }
 
     try {
-      const loginResult = await login(email, password);
+      const loginResult = await loginAdmin(email, password);
       if (loginResult.success) {
         if (loginResult.role === 'admin') {
           navigate('/admin');

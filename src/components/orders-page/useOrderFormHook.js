@@ -34,7 +34,7 @@ export const useOrderFormHook = onBack => {
   const [status, setStatus] = useState('pending');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { distributorUser, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,8 +42,8 @@ export const useOrderFormHook = onBack => {
   const getUserRole = () => {
     if (user?.role) {
       return user.role.toLowerCase();
-    } else if (distributorUser?.role) {
-      return distributorUser.role.toLowerCase();
+    } else if (user?.role) {
+      return user.role.toLowerCase();
     }
     return '';
   };
@@ -83,7 +83,7 @@ const isTamilNaduState = useCallback(() => {
     let customerState = '';
 
     if (isDistributorRoute) {
-      customerState = distributorUser?.state || '';
+      customerState = user?.state || '';
     } else {
       customerState = selectedCustomer?.state || '';
     }
@@ -129,7 +129,7 @@ const isTamilNaduState = useCallback(() => {
   let customerState = '';
 
   if (isDistributorRoute) {
-    customerState = distributorUser?.state || '';
+    customerState = user?.state || '';
   } else {
     customerState = selectedCustomer?.state || '';
   }
@@ -148,7 +148,7 @@ const isTamilNaduState = useCallback(() => {
   });
 
   return isTamilNadu;
-}, [userRole, isDistributorRoute, distributorUser, selectedCustomer, orderData]);
+}, [userRole, isDistributorRoute, user, selectedCustomer, orderData]);
 
   return {
     // State variables
@@ -180,7 +180,7 @@ const isTamilNaduState = useCallback(() => {
     setFormResetKey,
 
     // Computed values
-    distributorUser,
+    user,
     isDistributorRoute,
     isDirectRoute,
     isCorporateReport,

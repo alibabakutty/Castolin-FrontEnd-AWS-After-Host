@@ -17,7 +17,7 @@ const ViewFetchCorporate = ({ onBack }) => {
   const listContainerRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const currentCorporateUsername = user?.customer_name.toLowerCase() || user?.displayName.toLowerCase() || '';
+  const currentCorporateUsername = String(user?.username || user?.displayName || '').toLowerCase() || '';
 
   // Column configuration matching your existing structure
   const columns = [

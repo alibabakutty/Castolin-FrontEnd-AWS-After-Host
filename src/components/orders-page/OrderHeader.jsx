@@ -9,7 +9,6 @@ const OrderHeader = ({
   orderNumber,
   customerName,
   handleCustomerSelect,
-  distributorUser,
   isDistributorRoute,
   date,
   setDate,
@@ -18,6 +17,7 @@ const OrderHeader = ({
   executiveName,
   isDistributorReport,
   isCorporateReport,
+  user
 }) => {
   const [customerOptions, setCustomerOptions] = useState([]);
 
@@ -162,7 +162,7 @@ const OrderHeader = ({
       {isDistributorRoute && (
         <div className={`relative ${isDistributorRoute ? 'w-[150px]' : ''}`}>
           <div className="border p-[3.5px] rounded-[5px] border-[#932F67] text-sm font-medium text-gray-700 text-center">
-            {distributorUser.customer_code || 'executive'}
+            {user._userData.customer_code || '0000'}
           </div>
           <span className="absolute left-2.5 top-[12px] transition-all pointer-events-none -translate-y-[17px] text-[#932F67] px-1.5 font-semibold text-[12px] bg-[#E9EFEC] peer-valid:text-[#932F67] leading-2 rounded">
             Customer Code *
@@ -173,7 +173,7 @@ const OrderHeader = ({
       {!isDistributorReport && (
         <div className={`relative ${isDistributorRoute ? 'w-[450px]' : 'w-[280px]'}`}>
         <div className="border p-[3.5px] rounded-[5px] border-[#932F67] text-sm font-medium text-gray-700 text-center truncate">
-          {distributorUser?.customer_name || executiveName?.customer_name || 'executive'}
+          {user?.username || executiveName?.customer_name || 'executive'}
         </div>
         <span className="absolute left-2.5 top-[12px] transition-all pointer-events-none -translate-y-[17px] text-[#932F67] px-1.5 font-semibold text-[12px] bg-[#E9EFEC] peer-valid:text-[#932F67] leading-2 rounded">
           {isDistributorRoute ? 'Customer Name' : 'Executive Name'}

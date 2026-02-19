@@ -45,7 +45,7 @@ const NewOrder = ({ onBack }) => {
     setIsSubmitting,
     formResetKey,
     setFormResetKey,
-    distributorUser,
+    user,
     isDistributorRoute,
     isDirectRoute,
     isCorporateReport,
@@ -69,6 +69,8 @@ const NewOrder = ({ onBack }) => {
   const customerSelectRef = useRef(null);
   const addButtonRef = useRef(null);
 
+  console.log('User Details here:', user);
+
   const handleBackClick = () => {
     const confirmLeave = window.confirm(
       mode === 'update'
@@ -89,7 +91,7 @@ const NewOrder = ({ onBack }) => {
     // Show rows only when we have data or are in create mode
     const shouldShowRows = orderData.length > 0 || mode === 'create';
     setShowRowValueRows(shouldShowRows);
-  }, [orderData.length, mode, setShowRowValueRows]);
+  }, [orderData.length, mode]);
 
   // Fetch order details
 useEffect(() => {
@@ -157,7 +159,7 @@ useEffect(() => {
   };
 
   fetchOrderDetails();
-}, [mode, orderNumberFetch, setOrderData, setVoucherType, setCustomerName, setExecutiveName, setDate, setStatus, setRemarks, setDbTotals]);
+}, [mode, orderNumberFetch]);
 
   // Rest of your useEffect hooks remain the same
   useEffect(() => {
@@ -195,7 +197,7 @@ useEffect(() => {
     } else {
       setOrderNumber(orderNumberFetch);
     }
-  }, [mode, date, orderNumberFetch, setOrderNumber]);
+  }, [mode, date, orderNumberFetch]);
 
   // Handle customer selection
   const handleCustomerSelect = selected => {
@@ -230,10 +232,10 @@ useEffect(() => {
       userRole,
       isDistributorRoute,
       selectedCustomer: selectedCustomer?.state,
-      distributorUser: distributorUser?.state,
+      user: user?.state,
       isTamilNadu: isTamilNaduState(),
     });
-  }, [userRole, isDistributorRoute, selectedCustomer, distributorUser, isTamilNaduState]);
+  }, [userRole, isDistributorRoute, selectedCustomer, user, isTamilNaduState]);
 
   // calculate totals - ALWAYS calculate dynamically, even in update mode
   const totals = useMemo(() => {
@@ -366,7 +368,7 @@ useEffect(() => {
       totalAmount: finalTotalAmount, // Final amount after discounts and GST
       calculatedTotalAmount, // For debugging
     };
-  }, [orderData, editingRow, mode, dbTotals]);
+  }, [orderData, editingRow, isTamilNaduState, mode, dbTotals]);
 
   // Add this useEffect to debug totals changes
   useEffect(() => {
@@ -448,10 +450,10 @@ useEffect(() => {
           // Common order details
           voucher_type: voucherType,
           order_date: date, // Changed from 'date' to 'order_date' to match backend
-          customer_code: customerName?.customer_code || distributorUser?.customer_code || '',
-          customer_name: customerName?.customer_name || distributorUser?.customer_name || '',
-          executive: executiveName?.customer_name || '',
-          role: distributorUser?.role || '',
+          customer_code: customerName?.customer_code || user?.customer_code || '',
+          customer_name: customerName?.customer_name || user?.customer_name || '',
+          executive: executiveName?.customer_name || user?.username || '',
+          role: user?.role || '',
 
           // Totals
           total_quantity: totals.qty,
@@ -502,10 +504,10 @@ useEffect(() => {
           // Common order details
           voucher_type: voucherType,
           order_date: date,
-          customer_code: customerName?.customer_code || distributorUser?.customer_code || '',
-          customer_name: customerName?.customer_name || distributorUser?.customer_name || '',
-          executive: executiveName?.customer_name || '',
-          role: distributorUser?.role || '',
+          customer_code: customerName?.customer_code || user?.customer_code || '',
+          customer_name: customerName?.customer_name || user?.customer_name || '',
+          executive: executiveName?.customer_name || user?.username || '',
+          role: user?.role || '',
 
           // Totals
           total_quantity: totals.qty,
@@ -631,8 +633,8 @@ useEffect(() => {
 
       const customer = isDistributorRoute
         ? {
-            customer_code: distributorUser?.customer_code || 'DISTRIBUTOR',
-            customer_name: distributorUser?.customer_name || 'Distributor User',
+            customer_code: user?._userData?.customer_code || 'DISTRIBUTOR',
+            customer_name: user?._userData?.customer_name || 'Distributor User',
           }
         : {
             customer_code: customerName?.customer_code || '',
@@ -697,9 +699,9 @@ useEffect(() => {
         order_no: orderNumber,
         date: date,
         status: 'pending',
-        executiveCode: distributorUser?.customer_code || '',
-        executive: distributorUser?.customer_name || '',
-        role: distributorUser?.role || '',
+        executiveCode: user?.customer_code || '',
+        executive: user?.customer_name || user?.username || '',
+        role: user?.role || '',
         ...customer,
         item_code: item.itemCode,
         item_name: item.itemName,
@@ -811,7 +813,7 @@ useEffect(() => {
       setDbTotals(null);
       console.log('Cleared dbTotals for dynamic calculation');
     }
-  }, [orderData, mode, setDbTotals]);
+  }, [orderData, mode]);
 
   // Debug log to check values
   useEffect(() => {
@@ -819,10 +821,10 @@ useEffect(() => {
       userRole,
       isDistributorRoute,
       selectedCustomer: selectedCustomer?.state,
-      distributorUser: distributorUser?.state,
+      user: user?.state,
       isTamilNadu: isTamilNaduState(), // Using hook's function
     });
-  }, [userRole, isDistributorRoute, selectedCustomer, distributorUser, isTamilNaduState]);
+  }, [userRole, isDistributorRoute, selectedCustomer, user, isTamilNaduState]);
 
   return (
     <div className="p-3 bg-amber-50 border-2 h-screen font-amasis">
@@ -834,7 +836,7 @@ useEffect(() => {
         customerName={customerName}
         setCustomerName={setCustomerName}
         handleCustomerSelect={handleCustomerSelect}
-        distributorUser={distributorUser}
+        user={user}
         isDistributorRoute={isDistributorRoute}
         date={date}
         setDate={setDate}
