@@ -173,7 +173,7 @@ const OrderHeader = ({
       {!isDistributorReport && (
         <div className={`relative ${isDistributorRoute ? 'w-[450px]' : 'w-[280px]'}`}>
         <div className="border p-[3.5px] rounded-[5px] border-[#932F67] text-sm font-medium text-gray-700 text-center truncate">
-          {user?.username || executiveName?.customer_name || 'executive'}
+          {executiveName?.customer_name || user?.username || 'executive'}
         </div>
         <span className="absolute left-2.5 top-[12px] transition-all pointer-events-none -translate-y-[17px] text-[#932F67] px-1.5 font-semibold text-[12px] bg-[#E9EFEC] peer-valid:text-[#932F67] leading-2 rounded">
           {isDistributorRoute ? 'Customer Name' : 'Executive Name'}

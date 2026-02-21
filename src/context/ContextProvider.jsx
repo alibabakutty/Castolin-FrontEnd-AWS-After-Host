@@ -54,7 +54,7 @@ const clearSession = () => {
 /* ===================== CONTEXT ===================== */
 
 const ContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);        // ✅ LOGGED IN USER (ALL ROLES)
+  const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -95,7 +95,7 @@ const ContextProvider = ({ children }) => {
           username: userData.username,
           id: userData.id,
           email: userData.email,
-          _userData: userData, // ✅ FULL BACKEND PROFILE
+          _userData: userData,
         });
 
         setRole(userData.role);
@@ -122,6 +122,7 @@ const ContextProvider = ({ children }) => {
       );
 
       const token = await firebaseUser.getIdToken();
+
       const res = await api.get(ENDPOINTS[userType], {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -142,7 +143,7 @@ const ContextProvider = ({ children }) => {
 
       setRole(userData.role);
 
-      return { success: true, role: userData.role, userData };
+      return { success: true, role: userData.role };
     } catch (error) {
       return {
         success: false,
@@ -154,8 +155,6 @@ const ContextProvider = ({ children }) => {
     }
   };
 
-  /* ===================== LOGIN APIS ===================== */
-
   const loginAdmin = (email, password) =>
     loginWithRole(email, password, 'admin');
 
@@ -165,7 +164,7 @@ const ContextProvider = ({ children }) => {
   const loginCorporate = (email, password) =>
     loginWithRole(email, password, 'corporate');
 
-  /* ===================== SIGNUP ===================== */
+  /* ===================== ADMIN SIGNUP ===================== */
 
   const signup = async (username, email, password, mobileNumber) => {
     setIsSigningUp(true);
@@ -204,6 +203,128 @@ const ContextProvider = ({ children }) => {
     }
   };
 
+  /* ===================== DISTRIBUTOR ACCOUNT CREATION ===================== */
+
+  const createDistributorFirebaseAccount = async (
+    usercode,
+    updates,
+    email,
+    password
+  ) => {
+    let firebaseUser;
+
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      firebaseUser = credential.user;
+      const token = await firebaseUser.getIdToken();
+
+      const updatePayload = {
+        ...updates,
+        firebase_uid: firebaseUser.uid,
+        email,
+        status: 'active',
+      };
+
+      const res = await api.put(
+        `/distributors/${usercode}`,
+        updatePayload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await signOut(auth);
+
+      // automatically relogin as admin
+      const adminLoginResult = await loginAdmin('admin123@gmail.com', 12345678);
+
+      return {
+        success: true,
+        message: res.data?.message,
+        affectedRows: res.data?.affectedRows,
+        adminReLogin: adminLoginResult.success,
+      };
+    } catch (error) {
+      if (firebaseUser) {
+        try {
+          await firebaseUser.delete();
+        } catch {}
+      }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          'Distributor creation failed',
+      };
+    }
+  };
+
+  /* ===================== CORPORATE ACCOUNT CREATION ===================== */
+
+  const createDirectOrderFirebaseAccount = async (
+    usercode,
+    updates,
+    email,
+    password
+  ) => {
+    let firebaseUser;
+
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      firebaseUser = credential.user;
+      const token = await firebaseUser.getIdToken();
+
+      const updatePayload = {
+        ...updates,
+        firebase_uid: firebaseUser.uid,
+        email,
+        status: 'active',
+      };
+
+      const res = await api.put(
+        `/corporates/${usercode}`,
+        updatePayload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await signOut(auth);
+
+      // automatically relogin as admin
+      const adminLoginResult = await loginAdmin('admin123@gmail.com', '12345678');
+
+      return {
+        success: true,
+        message: res.data?.message,
+        affectedRows: res.data?.affectedRows,
+        adminReLogin: adminLoginResult.success,
+      };
+    } catch (error) {
+      if (firebaseUser) {
+        try {
+          await firebaseUser.delete();
+        } catch {}
+      }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          'Corporate creation failed',
+      };
+    }
+  };
+
   /* ===================== LOGOUT ===================== */
 
   const logout = async () => {
@@ -218,14 +339,16 @@ const ContextProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        user,      // ✅ ALWAYS USE THIS
-        role,      // ✅ ALWAYS USE THIS
+        user,
+        role,
         loading,
         loginAdmin,
         loginDistributor,
         loginCorporate,
         signup,
         logout,
+        createDistributorFirebaseAccount,
+        createDirectOrderFirebaseAccount,
       }}
     >
       {!loading && children}
